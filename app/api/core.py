@@ -12,6 +12,7 @@ from ..functions.embedding_functions import EmbeddingFunctions
 from ..functions.indexing_functions import IndexingFunctions
 from ..functions.chatbot_functions import ChatbotFunctions
 from ..functions.scraping_functions import Webscraper
+from ..functions.export_functions import Exporter
 
 
 class Authenticator:
@@ -74,6 +75,7 @@ class Processor:
         self.cf = ChatbotFunctions()
         self.en = Encryptor()
         self.ws = Webscraper()
+        self.ex = Exporter()
 
     def create_index(self, embeddings: np.ndarray, index_type: str = "flat"):
         if index_type == "flat":

@@ -1532,19 +1532,27 @@ class ChatManager extends Component {
         
         this.messageContainer = this.element.querySelector('.chat-messages');
         this.setupMessageInput();
+        this.setupExportButton();
     }
 
     setupMessageInput() {
         const container = document.querySelector('.message-input-container');
         container.innerHTML = `
-            <textarea 
+           <textarea 
                 class="message-input" 
-                placeholder="Please select your knowledge base ⚙️"
+                placeholder="Please select your domain from settings ⚙️ to start chat!"
                 rows="1"
                 disabled
             ></textarea>
             <button class="send-button" disabled>
                 <i class="bi bi-send send-icon"></i>
+            </button>
+            <button class="export-button" disabled title="Export Selected Messages">
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 4h14a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z" stroke="currentColor" stroke-width="2"/>
+                <path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M16 12l3 3m0 0l3-3m-3 3V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
             </button>
         `;
     
@@ -1664,16 +1672,154 @@ class ChatManager extends Component {
         
         if (type === 'ai') {
             text.innerHTML = this.formatMessage(content);
+            bubble.appendChild(text);
+            
+            if (!content.includes('what can I find for you?')) {
+                message.setAttribute('data-exportable', 'true');
+
+                const actionBar = document.createElement('div');
+                actionBar.className = 'message-actions';
+
+                const actionContainer = document.createElement('div');
+                actionContainer.className = 'action-container';
+
+                const selectionMark = document.createElement('div');
+                selectionMark.className = 'selection-mark';
+                selectionMark.innerHTML = '<i class="bi bi-check-circle"></i>';
+                
+                const copyButton = document.createElement('button');
+                copyButton.className = 'copy-button';
+                copyButton.innerHTML = `
+                <i class="bi bi-clipboard"></i>
+                <span class="action-text">Copy</span>`;
+                
+                copyButton.addEventListener('click', () => {
+                    const messageContent = text.innerHTML;
+                    this.copyToClipboard(messageContent);
+                    
+                    copyButton.innerHTML = `
+                    <i class="bi bi-check2"></i>
+                    <span class="action-text">Copied!</span>`;
+                    copyButton.classList.add('copied');
+                    
+                    setTimeout(() => {
+                        copyButton.innerHTML = `
+                        <i class="bi bi-clipboard"></i>
+                        <span class="action-text">Copy</span>`;
+                        copyButton.classList.remove('copied');
+                    }, 2000);
+                });
+                
+                selectionMark.addEventListener('click', () => {
+                    message.classList.toggle('selected');
+                    this.updateExportButton();
+                });
+                
+                actionContainer.appendChild(copyButton);
+                actionBar.appendChild(copyButton);
+                bubble.appendChild(selectionMark);
+                bubble.appendChild(actionBar);
+                message.appendChild(bubble);
+            } else {
+                message.appendChild(bubble);
+                bubble.appendChild(text);
+                message.appendChild(bubble);
+            }
         } else {
             text.textContent = content;
+            bubble.appendChild(text);
+            message.appendChild(bubble);
         }
         
-        bubble.appendChild(text);
-        message.appendChild(bubble);
         this.messageContainer.appendChild(message);
         this.scrollToBottom();
         
         return message;
+    }
+
+    setupExportButton() {
+        const exportButton = document.querySelector('.export-button');
+        if (exportButton) {
+            exportButton.addEventListener('click', () => this.handleExportSelected());
+            exportButton.disabled = true;
+        }
+    }
+
+    updateExportButton() {
+        const exportButton = document.querySelector('.export-button');
+        const selectedMessages = document.querySelectorAll('.chat-message.ai.selected');
+        const count = selectedMessages.length;
+
+        let counter = document.querySelector('.export-counter');
+        if (!counter) {
+            counter = document.createElement('div');
+            counter.className = 'export-counter';
+            exportButton.parentElement.appendChild(counter);
+        }
+
+        counter.textContent = `${count}/10`;
+        counter.style.color = count === 10 ? '#10B981' : 'white';
+        
+        exportButton.disabled = count === 0;
+        
+        if (count > 10) {
+            const lastSelected = selectedMessages[selectedMessages.length - 1];
+            lastSelected.classList.remove('selected');
+            this.updateExportButton();
+        }
+    }
+
+    getSelectedMessages() {
+        const selectedMessages = document.querySelectorAll('.chat-message.ai.selected');
+        return Array.from(selectedMessages).map(message => {
+            return message.querySelector('.message-text').innerHTML;
+        });
+    }
+
+    async handleExportSelected() {
+        const selectedContents = this.getSelectedMessages();
+        if (selectedContents.length === 0 || selectedContents.length > 10 ) return;
+
+        const exportButton = document.querySelector('.export-button');
+        const originalHTML = exportButton.innerHTML;
+        
+        try {
+            // Show loading state
+            exportButton.innerHTML = `<div class="spinner-border spinner-border-sm" role="status"></div>`;
+            exportButton.disabled = true;
+
+            const result = await window.exportResponse(selectedContents);
+            
+            if (result === true) {
+                // Success state
+                exportButton.innerHTML = '<i class="bi bi-check2"></i>';
+                setTimeout(() => {
+                    // Reset state
+                    exportButton.innerHTML = originalHTML;
+                    exportButton.disabled = false;
+                    
+                    // Deselect all messages
+                    document.querySelectorAll('.chat-message.ai.selected').forEach(msg => {
+                        msg.classList.remove('selected');
+                    });
+                    this.updateExportButton();
+                }, 2000);
+            } else {
+                // Error state
+                exportButton.innerHTML = '<i class="bi bi-x-circle"></i>';
+                setTimeout(() => {
+                    exportButton.innerHTML = originalHTML;
+                    exportButton.disabled = false;
+                }, 2000);
+            }
+        } catch (error) {
+            console.error('Export failed:', error);
+            exportButton.innerHTML = '<i class="bi bi-x-circle"></i>';
+            setTimeout(() => {
+                exportButton.innerHTML = originalHTML;
+                exportButton.disabled = false;
+            }, 2000);
+        }
     }
 
     updateHeader(domainName = null) {
@@ -1848,6 +1994,20 @@ class ChatManager extends Component {
                 
             container.appendChild(item);
         });
+    }
+
+    copyToClipboard(content) {
+        const cleanText = content.replace(/<div class="message-header">(.*?)<\/div>/g, '$1\n')
+            .replace(/<div class="message-item.*?">(.*?)<\/div>/g, '- $1')
+            .replace(/<div class="message-item nested-1">(.*?)<\/div>/g, '  - $1')
+            .replace(/<div class="message-item nested-2">(.*?)<\/div>/g, '    - $1')
+            .replace(/<strong class="message-bold">(.*?)<\/strong>/g, '$1')
+            .replace(/<[^>]+>/g, '')
+            .replace(/\n\s*\n/g, '\n\n')
+            .trim();
+    
+        navigator.clipboard.writeText(cleanText)
+            .catch(err => console.error('Failed to copy text:', err));
     }
 
     scrollToBottom() {

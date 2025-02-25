@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, HTTPException, Request, Query, File, 
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
 from datetime import datetime
 import os
 import logging
@@ -689,6 +689,34 @@ async def remove_file_upload(
         raise HTTPException(
             content={"message": f"Failed deleting, error: {e}"}, status_code=500
         )
+
+
+@router.post("/io/export_response")
+async def export_response(request: Request):
+    try:
+        data = await request.json()
+        text = data.get("contents", [])
+
+        if not text:
+            raise ValueError("No content selected for export")
+
+        formatted_text = "\n\n------------------\n\n".join(text)
+
+        response = processor.ex.export_pdf(data=formatted_text)
+
+        return StreamingResponse(
+            io.BytesIO(response.getvalue()),
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": "attachment; filename=DoclinkExport.pdf",
+                "Content-Type": "application/pdf",
+                "Content-Length": str(len(response.getvalue())),
+            },
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"PDF generation failed Error: {e}")
 
 
 @router.post("/auth/logout")
