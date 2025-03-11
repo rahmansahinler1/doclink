@@ -3234,55 +3234,133 @@ textarea.form-control {
 }
 
 @media (max-width: 1600px) {
-  .resources-container {
-    width: 400px;
+   .resources-container {
+    width: 350px;
   }
 
-  .search-input {
-    width: 100%;
+  .chat-container {
+    width: calc(100% - 294px - 350px);
+    transition: width 0.3s ease, margin-left 0.3s ease;
   }
 
-  .message-input-container {
-    width: 100%;
+  .chat-container.sidebar-closed {
+    width: calc(100% - 350px);
+    margin-left: 0;
+  }
+
+  .message-container {
+    transition: width 0.3s ease, left 0.3s ease;
   }
 
   .document-name {
-    max-width: 250px;
+    max-width: 220px;
   }
 }
 
 @media (max-width: 1200px) {
 
-  .resources-container {
-    width: 300px;
-  }
-
-  .header-title {
-    font-size: 24px;
-  }
-
-  .user-section span {
-    display: none;
-  }
-
-  .file-list-container {
-    width: 100%;
-    margin-left: 0;
-  }
-
-  .d-flex.justify-content-between.align-items-center.mb-3 {
-    padding: 0.5rem 0;
-  }
-
-  .document-name {
-    max-width: 200px;
-  }
+  /* NEW: Reduce sidebar width */
+  .sidebar-container {
+    width: 250px; /* Reduced from 294px */
 }
 
-@media (max-width: 991px) {
-  .sidebar-container.open .menu-trigger .bi-list {
-    transform: rotate(45deg);
-  }
+.bottom-section {
+  padding: 8px; /* Reduced padding */
+}
+
+.plan-badge {
+  font-size: 12px;
+  padding: 4px 12px;
+  margin-bottom: 6px;
+}
+
+.user-section {
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  min-width: 36px; /* Ensure it doesn't shrink */
+}
+
+.user-info {
+  max-width: 150px; /* Limit width for text overflow */
+}
+
+.user-email {
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bottom-links {
+  gap: 12px;
+  font-size: 12px;
+}
+
+/* Resources container - make it even smaller */
+.resources-container {
+    width: 300px;
+}
+
+/* NEW: Chat container with adjusted sidebar width */
+.chat-container {
+    width: calc(100% - 250px - 300px); /* Using new sidebar width */
+    margin-left: 250px; /* Match new sidebar width */
+}
+
+.chat-container.sidebar-closed {
+    width: calc(100% - 300px);
+    margin-left: 0;
+}
+
+/* NEW: Adjust message container for new sidebar width */
+.message-container {
+    left: 250px; /* Match new sidebar width */
+    width: calc(100% - 300px - 250px); /* With new sidebar width */
+}
+
+/* Header title size adjustment */
+.header-title {
+    font-size: 24px;
+}
+
+/* User section adjustments */
+.user-section span {
+    display: none;
+}
+
+/* File list container */
+.file-list-container {
+    width: 100%;
+    margin-left: 0;
+}
+
+/* Header section spacing */
+.d-flex.justify-content-between.align-items-center.mb-3 {
+    padding: 0.5rem 0;
+}
+
+/* Document name truncation */
+.document-name {
+    max-width: 200px;
+}
+
+/* NEW: Adjust sidebar internal elements for smaller width */
+.sidebar .logo-text {
+    font-size: 24px;
+}
+
+.sidebar-files li {
+    width: 100%;
+}
+
+.sidebar-files li .file-name {
+    max-width: 150px;
+}
 }
 
 @media (max-width: 768px) {

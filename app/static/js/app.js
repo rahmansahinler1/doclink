@@ -2196,6 +2196,34 @@ class Sidebar extends Component {
                     menuIcon.style.transform = 'rotate(0)';
                 }
             }
+
+            const messageContainer = document.querySelector('.message-container');
+            const chatContainer = document.querySelector('.chat-container');
+            
+            if (messageContainer && chatContainer) {
+                if (this.isOpen) {
+                    if (window.innerWidth <= 1200) {
+                        messageContainer.style.left = '250px'; // New sidebar width
+                        messageContainer.style.width = 'calc(100% - 300px - 250px)';
+                    } else if (window.innerWidth <= 1600) {
+                        messageContainer.style.left = '294px';
+                        messageContainer.style.width = 'calc(100% - 350px - 294px)';
+                    } else {
+                        messageContainer.style.left = '294px';
+                        messageContainer.style.width = 'calc(100% - 600px - 294px)';
+                    }
+                } else {
+                    messageContainer.style.left = '0';
+            
+                    if (window.innerWidth <= 1200) {
+                        messageContainer.style.width = 'calc(100% - 300px)';
+                    } else if (window.innerWidth <= 1600) {
+                        messageContainer.style.width = 'calc(100% - 350px)';
+                    } else {
+                        messageContainer.style.width = 'calc(100% - 600px)';
+                    }
+                }
+            }
         });
 
         // User Profile Menu
@@ -2256,21 +2284,40 @@ class Sidebar extends Component {
     toggle() {
         this.isOpen = !this.isOpen;
         this.element.classList.toggle('open', this.isOpen);
-        
-        // Toggle chat container margin
+
         const chatContainer = document.querySelector('.chat-container');
         if (chatContainer) {
-            chatContainer.classList.toggle('sidebar-closed', !this.isOpen);
-
-            const messageContainer = document.querySelector('.message-container');
-            if (messageContainer) {
-                messageContainer.style.left = this.isOpen ? '294px' : '0';
-                messageContainer.style.width = this.isOpen ? 
-                    'calc(100% - 600px - 294px)' : 
-                    'calc(100% - 600px)';
+          chatContainer.classList.toggle('sidebar-closed', !this.isOpen);
+        
+        // Toggle chat container margin
+        const messageContainer = document.querySelector('.message-container');
+        if (messageContainer) {
+            if (this.isOpen) {
+                // Sidebar open - container positioned relative to sidebar
+                if (window.innerWidth <= 1200) {
+                    messageContainer.style.left = '250px'; // New sidebar width
+                    messageContainer.style.width = 'calc(100% - 300px - 250px)';
+                } else if (window.innerWidth <= 1600) {
+                    messageContainer.style.left = '294px';
+                    messageContainer.style.width = 'calc(100% - 350px - 294px)';
+                } else {
+                    messageContainer.style.left = '294px';
+                    messageContainer.style.width = 'calc(100% - 600px - 294px)';
+                }
+            } else {
+                // Sidebar closed - container takes full width minus resources
+                messageContainer.style.left = '0';
+                
+                if (window.innerWidth <= 1200) {
+                    messageContainer.style.width = 'calc(100% - 300px)';
+                } else if (window.innerWidth <= 1600) {
+                    messageContainer.style.width = 'calc(100% - 350px)';
+                } else {
+                    messageContainer.style.width = 'calc(100% - 600px)';
+                }
             }
         }
-
+        }
     }
 
     updateDomainSelection(domain) {
