@@ -27,14 +27,14 @@ We have a very lean tech stack. We mostly trust our from scratch RAG implementat
 We're not very experienced web developers. But we trust our AI & RAG implementation.
 
 ## 🖥️ Frontend
-- Next.js
-- Bootstrap & Custom CSS
-- JavaScript
+- HTML
+- CSS (Bootstrap 5)
+- Vanilla JavaScript
 
 ## 🔧 Backend
 - FastAPI
-- PostgreSQL
-- Redis
+- PostgreSQL for relational database
+- Redis for caching & in memory database
 
 ## 🧠 AI & RAG
 - OpenAI: Embeddings and answer generation
@@ -79,11 +79,6 @@ Unlike many RAG implementations, Doclink adds an encryption layer to stored docu
 This approach combines the power of modern vector search techniques with the reliability and familiarity of relational databases, creating a robust, secure, and maintainable RAG system.
 
 This architecture enables Doclink to securely handle document processing, embedding generation, and sophisticated question-answering capabilities while maintaining a responsive user experience.
-
-# 👥 Contributing
-
-We welcome contributions to Doclink! If you need a specific update, please open an issue we will be on it.
-If you want to be part of our team, please reach us.
 
 # 🙏 Acknowledgments
 
